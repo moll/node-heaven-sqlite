@@ -35,7 +35,6 @@ sqlite.serialize()
 
 function Model(attrs) { Object.assign(this, attrs)}
 var modelsDb = new SqliteHeaven(Model, sqlite, "models")
-
 ```
 
 Suppose the "models" table looks like this:
