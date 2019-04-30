@@ -1,6 +1,6 @@
 var O = require("oolong")
 var Sqlite3 = require("sqlite3")
-var HeavenOnSqlite = require("..")
+var SqliteHeaven = require("..")
 var sql = require("sqlate")
 
 var db = new Sqlite3.Database(":memory:")
@@ -24,7 +24,7 @@ var TABLE_DDL = `
 	)
 `
 
-class HeavenOnTest extends HeavenOnSqlite {
+class HeavenOnTest extends SqliteHeaven {
 	assign(model, attrs) { return model.set(attrs) }
 
 	// As we've got attributes in a nested object, model identification that
@@ -42,7 +42,7 @@ class Model {
 	toJSON() { return O.clone(this.attributes) }
 }
 
-describe("HeavenOnSqlite", function() {
+describe("SqliteHeaven", function() {
 	beforeEach(function*() { yield execute("BEGIN") })
 	afterEach(function*() { yield execute("ROLLBACK") })
 
@@ -64,7 +64,7 @@ describe("HeavenOnSqlite", function() {
 
 		beforeEach(function() {
 			return execute(sql`
-				INSERT INTO models VALUES ${ROWS.map(O.values).map(sql.tuple)}
+				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
 			`)
 		})
 
@@ -103,7 +103,7 @@ describe("HeavenOnSqlite", function() {
 
 		describe("given a string id", function() {
 			it("must resolve with empty array if none returned", function*() {
-				yield create().search("Mike").must.then.eql([])
+				yield create().with({idColumn: "name"}).search("Rob").must.then.eql([])
 			})
 
 			it("must resolve with models queried by idColumn", function*() {
@@ -184,21 +184,21 @@ describe("HeavenOnSqlite", function() {
 			})
 
 			it("must resolve with models given numeric ids", function*() {
-				yield execute(sql`INSERT INTO models (name, age) VALUES ('Rho', 55)`)
+				yield execute(sql`INSERT INTO models (name, age) VALUES ('Rob', 55)`)
 
 				yield create().with({idColumn: "age"}).search([42, 55]).must.then.eql([
 					new Model({id: 3, name: "Mike", age: 42}),
-					new Model({id: 4, name: "Rho", age: 55})
+					new Model({id: 4, name: "Rob", age: 55})
 				])
 			})
 
 			it("must resolve with models given string ids", function*() {
-				yield execute(sql`INSERT INTO models (name, age) VALUES ('Rho', 55)`)
+				yield execute(sql`INSERT INTO models (name, age) VALUES ('Rob', 55)`)
 
 				var heaven = create().with({idColumn: "name"})
-				yield heaven.search(["John", "Rho"]).must.then.eql([
+				yield heaven.search(["John", "Rob"]).must.then.eql([
 					new Model({id: 2, name: "John", age: 13}),
-					new Model({id: 4, name: "Rho", age: 55})
+					new Model({id: 4, name: "Rob", age: 55})
 				])
 			})
 
@@ -222,7 +222,7 @@ describe("HeavenOnSqlite", function() {
 
 		beforeEach(function() {
 			return execute(sql`
-				INSERT INTO models VALUES ${ROWS.map(O.values).map(sql.tuple)}
+				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
 			`)
 		})
 
@@ -471,7 +471,7 @@ describe("HeavenOnSqlite", function() {
 
 		beforeEach(function() {
 			return execute(sql`
-				INSERT INTO models VALUES ${ROWS.map(O.values).map(sql.tuple)}
+				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
 			`)
 		})
 
@@ -557,7 +557,7 @@ describe("HeavenOnSqlite", function() {
 
 		beforeEach(function() {
 			return execute(sql`
-				INSERT INTO models VALUES ${ROWS.map(O.values).map(sql.tuple)}
+				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
 			`)
 		})
 

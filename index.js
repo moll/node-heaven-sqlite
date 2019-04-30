@@ -54,7 +54,7 @@ SqliteHeaven.prototype._search = function(query) {
 				case "string":
 					query = sql`
 						SELECT * FROM ${sql.table(this.table)}
-						WHERE ${sql.column(this.idColumn)} IN (${query})
+						WHERE ${sql.column(this.idColumn)} IN ${sql.tuple(query)}
 					`
 					break
 
@@ -162,15 +162,15 @@ function insert(table, attrs) {
 		return sql`INSERT INTO ${sql.table(table)} DEFAULT VALUES`
 	else
 		return sql`
-			INSERT INTO ${sql.table(table)} (${keys(attrs).map(sql.column)})
-			VALUES (${values(attrs)})
+			INSERT INTO ${sql.table(table)} ${sql.tuple(keys(attrs).map(sql.column))}
+			VALUES ${sql.tuple(values(attrs))}
 		`
 }
 
 function update(table, attrs) {
 	return sql`
 		UPDATE ${sql.table(table)}
-		SET ${map(attrs, (value, name) => sql`${sql.column(name)} = ${value}`)}
+		SET ${sql.csv(map(attrs, (val, name) => sql`${sql.column(name)} = ${val}`))}
 	`
 }
 

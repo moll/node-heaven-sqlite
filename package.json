@@ -27,7 +27,7 @@
 
 	"dependencies": {
 		"heaven": ">= 0.11 < 0.12",
-		"sqlate": ">= 1 < 2"
+		"sqlate": ">= 2 < 3"
 	},
 
 	"peerDependencies": {
