@@ -90,13 +90,11 @@ SqliteHeaven.prototype._read = function(query) {
 }
 
 SqliteHeaven.prototype._create = function(attrs) {
-	var self = this
-
 	// Fire off request to last row immediately as others may be interleaved
 	// otherwise.
-	return Promise.all(attrs.map(function(attrs) {
-		var created = self.execute(insert(self.table, attrs))
-		var last = self.select1(getLastInsert(self.table))
+	return Promise.all(attrs.map((attrs) => {
+		var created = this.execute(insert(this.table, attrs))
+		var last = this.select1(getLastInsert(this.table))
 		return created.then(() => last)
 	}))
 }
