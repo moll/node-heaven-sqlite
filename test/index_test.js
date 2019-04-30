@@ -61,12 +61,7 @@ describe("SqliteHeaven", function() {
 
 	describe(".prototype.search", function() {
 		beforeEach(function() { return execute(TABLE_DDL) })
-
-		beforeEach(function() {
-			return execute(sql`
-				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
-			`)
-		})
+		beforeEach(insert.bind(null, "models", ROWS))
 
 		it("must throw TypeError given undefined", function() {
 			var err
@@ -117,8 +112,7 @@ describe("SqliteHeaven", function() {
 
 			it("must query given \"=\"", function*() {
 				yield execute(sql`INSERT INTO models (name, age) VALUES ('=', 99)`)
-				var heaven = create().with({idColumn: "name"})
-				var model = yield heaven.search("=")
+				var model = yield create().with({idColumn: "name"}).search("=")
 				model.must.eql([new Model({id: 4, name: "=", age: 99})])
 			})
 		})
@@ -219,12 +213,7 @@ describe("SqliteHeaven", function() {
 
 	describe(".prototype.read", function() {
 		beforeEach(function() { return execute(TABLE_DDL) })
-
-		beforeEach(function() {
-			return execute(sql`
-				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
-			`)
-		})
+		beforeEach(insert.bind(null, "models", ROWS))
 
 		it("must throw TypeError given undefined", function() {
 			var err
@@ -264,7 +253,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a string id", function() {
 			it("must resolve with null if none returned", function*() {
-				yield create().read("Mike").must.then.be.null()
+				yield create().with({idColumn: "name"}).read("Rob").must.then.be.null()
 			})
 
 			it("must resolve with model queried by idColumn", function*() {
@@ -275,8 +264,7 @@ describe("SqliteHeaven", function() {
 
 			it("must query given \"=\"", function*() {
 				yield execute(sql`INSERT INTO models (name, age) VALUES ('=', 99)`)
-				var heaven = create().with({idColumn: "name"})
-				var model = yield heaven.read("=")
+				var model = yield create().with({idColumn: "name"}).read("=")
 				model.must.eql(new Model({id: 4, name: "=", age: 99}))
 			})
 		})
@@ -321,9 +309,8 @@ describe("SqliteHeaven", function() {
 
 		// Ensures exceptions from the creation promise get propagated correctly.
 		it("must throw error on constraint violation", function*() {
-			var heaven = create()
 			var err
-			try { yield heaven.create([{name: "Mike", age: 101}]) }
+			try { yield create().create([{name: "Mike", age: 101}]) }
 			catch (ex) { err = ex }
 			err.must.be.an.error(/SQLITE_CONSTRAINT/)
 			yield execute("SELECT * FROM models").must.then.eql([])
@@ -468,12 +455,7 @@ describe("SqliteHeaven", function() {
 
 	describe(".prototype.update", function() {
 		beforeEach(function*() { yield execute(TABLE_DDL) })
-
-		beforeEach(function() {
-			return execute(sql`
-				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
-			`)
-		})
+		beforeEach(insert.bind(null, "models", ROWS))
 
 		it("must throw TypeError given undefined", function() {
 			var err
@@ -554,12 +536,7 @@ describe("SqliteHeaven", function() {
 
 	describe(".prototype.delete", function() {
 		beforeEach(function*() { yield execute(TABLE_DDL) })
-
-		beforeEach(function() {
-			return execute(sql`
-				INSERT INTO models VALUES ${sql.csv(ROWS.map(O.values).map(sql.tuple))}
-			`)
-		})
+		beforeEach(insert.bind(null, "models", ROWS))
 
 		it("must throw TypeError given undefined", function() {
 			var err
@@ -617,5 +594,14 @@ describe("SqliteHeaven", function() {
 		})
 	})
 })
+
+function insert(table, rows) {
+	return execute(sql`
+		INSERT INTO ${sql.table(table)}
+			${sql.tuple(O.keys(rows[0]).map(sql.column))}
+		VALUES
+			${sql.csv(rows.map(O.values).map(sql.tuple))}
+	`)
+}
 
 function create() { return new HeavenOnTest(Model, db, "models") }
