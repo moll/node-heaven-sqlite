@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.0 (Apr 30, 2019)
 - Upgrades [Sqlate.js][sqlate] to v2.  
   See [Sqlate.js's CHANGELOG][sqlate-changelog] for details.
 

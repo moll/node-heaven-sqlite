@@ -1,6 +1,6 @@
 {
 	"name": "heaven-sqlite",
-	"version": "0.1.337",
+	"version": "0.2.0",
 	"description": "Heaven.js's Table Data Gateway for SQLite. CRUD API that parses and serializes your models.",
 	"keywords": ["sqlite", "database", "orm"],
 	"homepage": "https://github.com/moll/node-heaven-sqlite",
