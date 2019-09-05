@@ -54,8 +54,7 @@ describe("SqliteHeaven", function() {
 
 	describe(".prototype.with", function() {
 		it("must set new idColumn", function() {
-			var heaven = create()
-			heaven.with({idColumn: "age"}).idColumn.must.equal("age")
+			create().with({idColumn: "age"}).idColumn.must.equal("age")
 		})
 	})
 
@@ -87,9 +86,7 @@ describe("SqliteHeaven", function() {
 			})
 
 			it("must resolve with models queried by idColumn", function*() {
-				var heaven = create().with({idColumn: "age"})
-
-				yield heaven.search(13).must.then.eql([
+				yield create({idColumn: "age"}).search(13).must.then.eql([
 					new Model({id: 1, name: "Mike", age: 13}),
 					new Model({id: 2, name: "John", age: 13})
 				])
@@ -98,13 +95,11 @@ describe("SqliteHeaven", function() {
 
 		describe("given a string id", function() {
 			it("must resolve with empty array if none returned", function*() {
-				yield create().with({idColumn: "name"}).search("Rob").must.then.eql([])
+				yield create({idColumn: "name"}).search("Rob").must.then.eql([])
 			})
 
 			it("must resolve with models queried by idColumn", function*() {
-				var heaven = create().with({idColumn: "name"})
-
-				yield heaven.search("Mike").must.then.eql([
+				yield create({idColumn: "name"}).search("Mike").must.then.eql([
 					new Model({id: 1, name: "Mike", age: 13}),
 					new Model({id: 3, name: "Mike", age: 42})
 				])
@@ -112,7 +107,7 @@ describe("SqliteHeaven", function() {
 
 			it("must query given \"=\"", function*() {
 				yield execute(sql`INSERT INTO models (name, age) VALUES ('=', 99)`)
-				var model = yield create().with({idColumn: "name"}).search("=")
+				var model = yield create({idColumn: "name"}).search("=")
 				model.must.eql([new Model({id: 4, name: "=", age: 99})])
 			})
 		})
@@ -123,11 +118,11 @@ describe("SqliteHeaven", function() {
 			})
 
 			it("must resolve with models queried by idColumn", function*() {
-				var heaven = create().with({idAttribute: "age", idColumn: "age"})
-
-				yield heaven.search(new Model({age: 42})).must.then.eql([
-					new Model({id: 3, name: "Mike", age: 42}),
-				])
+				var heaven = create({idAttribute: "age", idColumn: "age"})
+				var model = new Model({age: 42})
+				var models = yield heaven.search(model)
+				models.must.eql([new Model({id: 3, name: "Mike", age: 42})])
+				models[0].must.equal(model)
 			})
 		})
 
@@ -180,7 +175,7 @@ describe("SqliteHeaven", function() {
 			it("must resolve with models given numeric ids", function*() {
 				yield execute(sql`INSERT INTO models (name, age) VALUES ('Rob', 55)`)
 
-				yield create().with({idColumn: "age"}).search([42, 55]).must.then.eql([
+				yield create({idColumn: "age"}).search([42, 55]).must.then.eql([
 					new Model({id: 3, name: "Mike", age: 42}),
 					new Model({id: 4, name: "Rob", age: 55})
 				])
@@ -189,7 +184,7 @@ describe("SqliteHeaven", function() {
 			it("must resolve with models given string ids", function*() {
 				yield execute(sql`INSERT INTO models (name, age) VALUES ('Rob', 55)`)
 
-				var heaven = create().with({idColumn: "name"})
+				var heaven = create({idColumn: "name"})
 				yield heaven.search(["John", "Rob"]).must.then.eql([
 					new Model({id: 2, name: "John", age: 13}),
 					new Model({id: 4, name: "Rob", age: 55})
@@ -245,26 +240,25 @@ describe("SqliteHeaven", function() {
 			})
 
 			it("must resolve with model queried by idColumn", function*() {
-				var heaven = create().with({idColumn: "age"})
-				var model = yield heaven.read(13)
+				var model = yield create({idColumn: "age"}).read(13)
 				model.must.eql(new Model({id: 1, name: "Mike", age: 13}))
 			})
 		})
 
 		describe("given a string id", function() {
 			it("must resolve with null if none returned", function*() {
-				yield create().with({idColumn: "name"}).read("Rob").must.then.be.null()
+				yield create({idColumn: "name"}).read("Rob").must.then.be.null()
 			})
 
 			it("must resolve with model queried by idColumn", function*() {
-				var heaven = create().with({idColumn: "name"})
+				var heaven = create({idColumn: "name"})
 				var model = yield heaven.read("Mike")
 				model.must.eql(new Model({id: 1, name: "Mike", age: 13}))
 			})
 
 			it("must query given \"=\"", function*() {
 				yield execute(sql`INSERT INTO models (name, age) VALUES ('=', 99)`)
-				var model = yield create().with({idColumn: "name"}).read("=")
+				var model = yield create({idColumn: "name"}).read("=")
 				model.must.eql(new Model({id: 4, name: "=", age: 99}))
 			})
 		})
@@ -276,7 +270,8 @@ describe("SqliteHeaven", function() {
 
 			it("must resolve with model queried by idColumn", function*() {
 				var heaven = create().with({idAttribute: "age", idColumn: "age"})
-				var model = yield heaven.read(new Model({age: 42}))
+				var model = new Model({age: 42})
+				yield heaven.read(model).must.then.equal(model)
 				model.must.eql(new Model({id: 3, name: "Mike", age: 42}))
 			})
 		})
@@ -318,9 +313,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given attributes", function() {
 			it("must create model", function*() {
-				var heaven = create()
-				var model = yield heaven.create({name: "John", age: 13})
-
+				var model = yield create().create({name: "John", age: 13})
 				var rows = yield execute("SELECT * FROM models")
 				rows.must.eql([{id: 1, name: "John", age: 13}])
 				model.must.eql(new Model({id: 1, name: "John", age: 13}))
@@ -336,9 +329,7 @@ describe("SqliteHeaven", function() {
 			})
 
 			it("must create model given empty attributes", function*() {
-				var heaven = create()
-				var model = yield heaven.create({})
-
+				var model = yield create().create({})
 				var rows = yield execute("SELECT * FROM models")
 				rows.must.eql([{id: 1, name: "", age: 0}])
 				model.must.eql(new Model({id: 1, name: "", age: 0}))
@@ -347,9 +338,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a model", function() {
 			it("must create model", function*() {
-				var heaven = create()
-				var model = yield heaven.create(new Model({name: "John", age: 13}))
-
+				var model = yield create().create(new Model({name: "John", age: 13}))
 				var rows = yield execute("SELECT * FROM models")
 				rows.must.eql([{id: 1, name: "John", age: 13}])
 				model.must.eql(new Model({id: 1, name: "John", age: 13}))
@@ -483,7 +472,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a numeric id and attributes", function() {
 			it("must update models queried by idColumn", function*() {
-				yield create().with({idColumn: "age"}).update(13, {name: "Raul"})
+				yield create({idColumn: "age"}).update(13, {name: "Raul"})
 
 				yield execute("SELECT * FROM models").must.then.eql([
 					{id: 1, name: "Raul", age: 13},
@@ -500,7 +489,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a string id and attributes", function() {
 			it("must update models queried by idColumn", function*() {
-				yield create().with({idColumn: "name"}).update("Mike", {name: "Raul"})
+				yield create({idColumn: "name"}).update("Mike", {name: "Raul"})
 
 				yield execute("SELECT * FROM models").must.then.eql([
 					{id: 1, name: "Raul", age: 13},
@@ -517,7 +506,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a model and attributes", function() {
 			it("must update model queried by idColumn", function*() {
-				var heaven = create().with({idAttribute: "age", idColumn: "age"})
+				var heaven = create({idAttribute: "age", idColumn: "age"})
 				yield heaven.update(new Model({age: 13}), {name: "Raul"})
 
 				yield execute("SELECT * FROM models").must.then.eql([
@@ -564,7 +553,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a numeric id and attributes", function() {
 			it("must delete models queried by idColumn", function*() {
-				yield create().with({idColumn: "age"}).delete(13)
+				yield create({idColumn: "age"}).delete(13)
 
 				yield execute("SELECT * FROM models").must.then.eql([
 					{id: 3, name: "Mike", age: 42}
@@ -574,7 +563,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a string id and attributes", function() {
 			it("must delete models queried by idColumn", function*() {
-				yield create().with({idColumn: "name"}).delete("Mike")
+				yield create({idColumn: "name"}).delete("Mike")
 
 				yield execute("SELECT * FROM models").must.then.eql([
 					{id: 2, name: "John", age: 13}
@@ -584,7 +573,7 @@ describe("SqliteHeaven", function() {
 
 		describe("given a model and attributes", function() {
 			it("must delete model queried by idColumn", function*() {
-				var heaven = create().with({idAttribute: "age", idColumn: "age"})
+				var heaven = create({idAttribute: "age", idColumn: "age"})
 				yield heaven.delete(new Model({age: 13}))
 
 				yield execute("SELECT * FROM models").must.then.eql([
@@ -604,4 +593,7 @@ function insert(table, rows) {
 	`)
 }
 
-function create() { return new HeavenOnTest(Model, db, "models") }
+function create(props) {
+	var heaven = new HeavenOnTest(Model, db, "models")
+  return props ? heaven.with(props) : heaven
+}
