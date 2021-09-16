@@ -167,7 +167,9 @@ describe("SqliteHeaven", function() {
 			it("must resolve with empty array given an empty array", function*() {
 				yield create().search([]).must.then.eql([])
 			})
+		})
 
+		describe("given an array of numeric ids", function() {
 			it("must resolve with empty array if no ids match", function*() {
 				yield create().search([5, 6, 7]).must.then.eql([])
 			})
@@ -180,7 +182,9 @@ describe("SqliteHeaven", function() {
 					new Model({id: 4, name: "Rob", age: 55})
 				])
 			})
+		})
 
+		describe("given an array of string ids", function() {
 			it("must resolve with models given string ids", function*() {
 				yield execute(sql`INSERT INTO models (name, age) VALUES ('Rob', 55)`)
 
@@ -190,7 +194,9 @@ describe("SqliteHeaven", function() {
 					new Model({id: 4, name: "Rob", age: 55})
 				])
 			})
+		})
 
+		describe("given an array of models", function() {
 			it("must resolve with models given models", function*() {
 				var a = new Model({id: 1})
 				var b = new Model({id: 3})
