@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.0 (Sep 17, 2021)
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3].  
   Better SQLite3 is also synchronous, so all of the CRUD methods of `BetterSqliteHeaven` are also synchronous. The [Mapbox's SQLite3][mapbox-sqlite3] version continues to be asynchronous and promised-based.
 
