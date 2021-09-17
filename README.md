@@ -1,12 +1,14 @@
 Heaven.js for SQLite
 ====================
 [![NPM version][npm-badge]](https://www.npmjs.com/package/heaven-sqlite)
+[![Build status][travis-badge]](https://app.travis-ci.com/moll/node-heaven-sqlite)
 
 **Heaven.js for SQLite** is a JavaScript library for Node.js that gives you a [CRUD][crud] API for your SQLite database by implementing a [Data Mapper][data-mapper] or [Table Data Gateway][table-data-gateway] object. It's built on [Heaven.js][heaven] and comes with adapters for [Mapbox's SQLite3][mapbox-sqlite3] and [Joshua Wise's Better SQLite3][better-sqlite3]. It'll also work with other SQLite libraries that have compatible APIs. Along with [Sqlate.js][sqlate]'s tagged template strings, this permits convenient SQL queries that get parsed to your models and equally easy creation and updating.
 
 Until Heaven.js for SQLite reaches v1, its documentation is likely to be lacking. Sorry for that! It has been, however, used in production since 2019.
 
 [npm-badge]: https://img.shields.io/npm/v/heaven-sqlite.svg
+[travis-badge]: https://app.travis-ci.com/moll/node-heaven-sqlite.svg?branch=master
 [data-mapper]: https://www.martinfowler.com/eaaCatalog/dataMapper.html
 [table-data-gateway]: https://www.martinfowler.com/eaaCatalog/tableDataGateway.html
 [sqlate]: https://github.com/moll/js-sqlate

@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  # Better SQLite3 v6 depends on Node >= v8 and < 16.
+  - "8"
+  - "9"
+  - "10"
+  - "11"
+  - "12"
+  - "13"
+  - "14"
+  - "15"
+
+notifications:
+  email: ["andri@dot.ee"]
