@@ -27,11 +27,16 @@ MapboxSqliteHeaven.prototype._delete = SqliteHeaven._delete
 MapboxSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
 
 MapboxSqliteHeaven.prototype._create = function(attrs) {
-	// Fire off request to last row immediately as others may be interleaved
-	// otherwise.
 	return Promise.all(attrs.map((attrs) => {
 		var created = this.execute(insert(this.table, attrs))
-		var last = this.select1(getLastInsert(this.table))
+
+		// Fire off request to last row immediately as others may be interleaved
+		// otherwise.
+		var last = this.select1(sql`
+			SELECT * FROM ${sql.table(this.table)}
+			WHERE _rowid_ = last_insert_rowid()
+		`)
+
 		return created.then(() => last)
 	}))
 }
@@ -52,10 +57,6 @@ MapboxSqliteHeaven.prototype.execute = function(sql) {
 }
 
 MapboxSqliteHeaven.prototype.return = Promise.resolve.bind(Promise)
-
-function getLastInsert(table) {
-	return sql`SELECT * FROM ${sql.table(table)} WHERE oid = last_insert_rowid()`
-}
 
 function promise(fn) {
 	return new Promise((yes, no) => fn((err, val) => err ? no(err) : yes(val)))

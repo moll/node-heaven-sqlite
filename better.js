@@ -30,7 +30,7 @@ BetterSqliteHeaven.prototype._create = function(attrs) {
 
 		return this.select1(sql`
 			SELECT * FROM ${sql.table(this.table)}
-			WHERE oid = ${created.lastInsertRowid}
+			WHERE _rowid_ = ${created.lastInsertRowid}
 		`)
 	})
 }
