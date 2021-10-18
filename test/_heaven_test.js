@@ -79,7 +79,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 			})
 
 			describe("given a numeric id", function() {
-				it("must resolve with an empty array if none returned", async function() {
+				it("must resolve with an empty array if none returned",
+					async function() {
 					demand(await create().search(42)).eql([])
 				})
 
@@ -111,7 +112,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 			})
 
 			describe("given a model", function() {
-				it("must resolve with an empty array if none returned", async function() {
+				it("must resolve with an empty array if none returned",
+					async function() {
 					demand(await create().search(new Model({id: 4}))).eql([])
 				})
 
@@ -162,7 +164,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 					err.must.be.an.error(TypeError, /mixed/i)
 				})
 
-				it("must resolve with empty array given an empty array", async function() {
+				it("must resolve with empty array given an empty array",
+					async function() {
 					demand(await create().search([])).eql([])
 				})
 			})
@@ -525,9 +528,13 @@ module.exports = function(SqliteHeaven, db, execute) {
 			})
 
 			describe("given a model and attributes", function() {
-				it("must update model queried by idColumn", async function() {
+				it("must update model queried by idColumn and return nothing",
+					async function() {
 					var heaven = create({idAttribute: "age", idColumn: "age"})
-					await heaven.update(new Model({age: 13}), {name: "Raul"})
+
+					demand(await heaven.update(new Model({age: 13}), {
+						name: "Raul"
+					})).be.undefined()
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
 						{id: 1, name: "Raul", age: 13},
@@ -536,8 +543,9 @@ module.exports = function(SqliteHeaven, db, execute) {
 					])
 				})
 
-				it("must do nothing given empty attributes", async function() {
-					await create().update(new Model({id: 1}), {})
+				it("must do and return nothing given empty attributes",
+					async function() {
+					demand(await create().update(new Model({id: 1}), {})).be.undefined()
 					demand(await execute(sql`SELECT * FROM models`)).eql(ROWS)
 				})
 			})
@@ -572,8 +580,9 @@ module.exports = function(SqliteHeaven, db, execute) {
 			})
 
 			describe("given a numeric id and attributes", function() {
-				it("must delete models queried by idColumn", async function() {
-					await create({idColumn: "age"}).delete(13)
+				it("must delete models queried by idColumn and return nothing",
+					async function() {
+					demand(await create({idColumn: "age"}).delete(13)).be.undefined()
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
 						{id: 3, name: "Mike", age: 42}

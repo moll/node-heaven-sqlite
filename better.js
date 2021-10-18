@@ -4,7 +4,6 @@ var Sql = require("sqlate").Sql
 var sql = require("sqlate")
 var insert = require("./lib/sql").insert
 var update = require("./lib/sql").update
-var NO_CHANGES = {changes: 0}
 exports = module.exports = BetterSqliteHeaven
 exports.insert = insert
 exports.update = update
@@ -23,7 +22,6 @@ BetterSqliteHeaven.prototype.idColumn = SqliteHeaven.idColumn
 BetterSqliteHeaven.prototype.with = SqliteHeaven.with
 BetterSqliteHeaven.prototype._search = SqliteHeaven._search
 BetterSqliteHeaven.prototype._read = SqliteHeaven._read
-BetterSqliteHeaven.prototype._delete = SqliteHeaven._delete
 BetterSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
 
 BetterSqliteHeaven.prototype._create = function(attrs) {
@@ -38,7 +36,11 @@ BetterSqliteHeaven.prototype._create = function(attrs) {
 }
 
 BetterSqliteHeaven.prototype._update = function(query, attrs) {
-	return SqliteHeaven._update.call(this, query, attrs) || NO_CHANGES
+	SqliteHeaven._update.call(this, query, attrs)
+}
+
+BetterSqliteHeaven.prototype._delete = function(query, attrs) {
+	SqliteHeaven._delete.call(this, query, attrs)
 }
 
 BetterSqliteHeaven.prototype.select = function(sql) {

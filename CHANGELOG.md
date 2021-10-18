@@ -8,6 +8,9 @@
 
   This could be handy if you pool Sqlite connections and want to overwrite the default connection of a Heaven instance with one that has a transaction open, for example.
 
+- Returns `undefined` from `SqliteHeaven.prototype.update` and `SqliteHeaven.prototype.delete` instead of the Sqlite implementation's regular result.  
+  Trying to always return the implementation's result (which was the number of rows updated with Better SQLite3) interferes with batching updates.
+
 ## 0.3.0 (Sep 17, 2021)
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3].  
   Better SQLite3 is also synchronous, so all of the CRUD methods of `BetterSqliteHeaven` are also synchronous. The [Mapbox's SQLite3][mapbox-sqlite3] version continues to be asynchronous and promised-based.
