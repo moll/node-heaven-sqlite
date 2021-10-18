@@ -45,6 +45,15 @@ module.exports = function(SqliteHeaven, db, execute) {
 			it("must set new idColumn", function() {
 				create().with({idColumn: "age"}).idColumn.must.equal("age")
 			})
+
+			it("must set a new Sqlite instance", function() {
+				var newSqlite = {}
+				create().with({sqlite: newSqlite}).sqlite.must.equal(newSqlite)
+			})
+
+			it("must set new table", function() {
+				create().with({table: "new_models"}).table.must.equal("new_models")
+			})
 		})
 
 		describe(".prototype.search", function() {

@@ -9,6 +9,8 @@ exports.idColumn = "id"
 exports.with = function(props) {
 	var heaven = Heaven.prototype.with.call(this, props)
 	if ("idColumn" in props) heaven.idColumn = props.idColumn
+	if ("sqlite" in props) heaven.sqlite = props.sqlite
+	if ("table" in props) heaven.table = props.table
 	return heaven
 }
 

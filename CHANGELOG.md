@@ -1,3 +1,13 @@
+## Unreleased
+- Permits overwriting the `sqlite` and `table` properties by calling `SqliteHeaven.prototype.with`:
+
+  ```javascript
+  var heaven = new SqliteHeaven(Model, sqlite, "models")
+  var newHeaven = heaven.with({sqlite: otherSqlite, table: "other_models"})
+  ```
+
+  This could be handy if you pool Sqlite connections and want to overwrite the default connection of a Heaven instance with one that has a transaction open, for example.
+
 ## 0.3.0 (Sep 17, 2021)
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3].  
   Better SQLite3 is also synchronous, so all of the CRUD methods of `BetterSqliteHeaven` are also synchronous. The [Mapbox's SQLite3][mapbox-sqlite3] version continues to be asynchronous and promised-based.
