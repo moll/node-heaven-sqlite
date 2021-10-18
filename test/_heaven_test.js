@@ -1,6 +1,7 @@
 var O = require("oolong")
 var sql = require("sqlate")
 var demand = require("must")
+var SQLITE_MAX_VARIABLE_NUMBER = 999
 
 var TABLE_DDL = sql`
 	CREATE TEMPORARY TABLE "models" (
@@ -431,17 +432,35 @@ module.exports = function(SqliteHeaven, db, execute) {
 					])
 				})
 
-				it("must create models given empty attributes", async function() {
-					var models = await create().create([{name: "John"}, {}])
+				it("must create models given all empty attributes", async function() {
+					var models = await create().create([{}, {}, {}])
+
+					demand(await execute(sql`SELECT * FROM models`)).eql([
+						{id: 1, name: "", age: 0},
+						{id: 2, name: "", age: 0},
+						{id: 3, name: "", age: 0}
+					])
+
+					models.must.eql([
+						{id: 1, name: "", age: 0},
+						{id: 2, name: "", age: 0},
+						{id: 3, name: "", age: 0}
+					])
+				})
+
+				it("must create models given one empty attributes", async function() {
+					var models = await create().create([{name: "John"}, {}, {age: 42}])
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
 						{id: 1, name: "John", age: 0},
-						{id: 2, name: "", age: 0}
+						{id: 2, name: "", age: 0},
+						{id: 3, name: "", age: 42}
 					])
 
 					models.must.eql([
 						{id: 1, name: "John", age: 0},
-						{id: 2, name: "", age: 0}
+						{id: 2, name: "", age: 0},
+						{id: 3, name: "", age: 42}
 					])
 				})
 
@@ -459,6 +478,204 @@ module.exports = function(SqliteHeaven, db, execute) {
 					models.must.eql([
 						new Model({id: 1, name: "Mike", age: 42}),
 						new Model({id: 2, name: "John", age: 13})
+					])
+				})
+			})
+		})
+
+		describe(".prototype.create_", function() {
+			beforeEach(execute.bind(null, TABLE_DDL))
+
+			it("must throw TypeError given undefined", function() {
+				var err
+				try { create().create_(undefined) } catch (ex) { err = ex }
+				err.must.be.an.error(TypeError, /bad attributes/i)
+			})
+
+			it("must throw TypeError given null", function() {
+				var err
+				try { create().create_(null) } catch (ex) { err = ex }
+				err.must.be.an.error(TypeError, /bad attributes/i)
+			})
+
+			// Ensures exceptions from the creation promise get propagated correctly.
+			it("must throw error on constraint violation", async function() {
+				var err
+				try { await create().create_([{name: "Mike", age: 101}]) }
+				catch (ex) { err = ex }
+				err.must.be.an.error(/CHECK constraint failed/)
+				demand(await execute(sql`SELECT * FROM models`)).eql([])
+			})
+
+			describe("given attributes", function() {
+				it("must create model", async function() {
+					demand(await create().create_({name: "John", age: 13})).be.undefined()
+					var rows = await execute(sql`SELECT * FROM models`)
+					rows.must.eql([{id: 1, name: "John", age: 13}])
+				})
+
+				it("must create model given inherited attributes", async function() {
+					await create().create_(Object.create({name: "John", age: 13}))
+					var rows = await execute(sql`SELECT * FROM models`)
+					rows.must.eql([{id: 1, name: "John", age: 13}])
+				})
+
+				it("must create model given empty attributes", async function() {
+					demand(await create().create_({})).be.undefined()
+					var rows = await execute(sql`SELECT * FROM models`)
+					rows.must.eql([{id: 1, name: "", age: 0}])
+				})
+			})
+
+			describe("given a model", function() {
+				it("must create model", async function() {
+					demand(await create().create_(new Model({
+						name: "John",
+						age: 13
+					}))).be.undefined()
+
+					var rows = await execute(sql`SELECT * FROM models`)
+					rows.must.eql([{id: 1, name: "John", age: 13}])
+				})
+			})
+
+			describe("given an array", function() {
+				it("must throw TypeError given undefined", function() {
+					var err
+					try { create().create_([undefined]) } catch (ex) { err = ex }
+					err.must.be.an.error(TypeError, /bad attributes/i)
+				})
+
+				it("must throw TypeError given undefined and object array", function() {
+					var err
+					try { create().create_([undefined, {}]) } catch (ex) { err = ex }
+					err.must.be.an.error(TypeError, /bad attributes/i)
+				})
+
+				it("must throw TypeError given null", function() {
+					var err
+					try { create().create_([null]) } catch (ex) { err = ex }
+					err.must.be.an.error(TypeError, /bad attributes/i)
+				})
+
+				it("must throw TypeError given null and object", function() {
+					var err
+					try { create().create_([null, {}]) } catch (ex) { err = ex }
+					err.must.be.an.error(TypeError, /bad attributes/i)
+				})
+
+				it("must not create models given an empty array", async function() {
+					demand(await create().create_([])).be.undefined()
+					demand(await execute(sql`SELECT * FROM models`)).eql([])
+				})
+
+				it("must create model given empty attributes", async function() {
+					var heaven = create()
+					demand(await heaven.create_([{}])).be.undefined()
+
+					var rows = await execute(sql`SELECT * FROM models`)
+					rows.must.eql([{id: 1, name: "", age: 0}])
+				})
+
+				it("must create model given empty model", async function() {
+					var heaven = create()
+					demand(await heaven.create_([new Model])).be.undefined()
+
+					var rows = await execute(sql`SELECT * FROM models`)
+					rows.must.eql([{id: 1, name: "", age: 0}])
+				})
+
+				it("must create model", async function() {
+					demand(await create().create_([new Model({
+						name: "John",
+						age: 13
+					})])).be.undefined()
+
+					var rows = await execute(sql`SELECT * FROM models`)
+					rows.must.eql([{id: 1, name: "John", age: 13}])
+				})
+
+				it("must create models with matching attributes", async function() {
+					demand(await create().create_([
+						new Model({name: "John", age: 13}),
+						new Model({name: "Mike", age: 42})
+					])).be.undefined()
+
+					demand(await execute(sql`SELECT * FROM models`)).eql([
+						{id: 1, name: "John", age: 13},
+						{id: 2, name: "Mike", age: 42}
+					])
+				})
+
+				it("must create models with mismatching attributes", async function() {
+					demand(await create().create_([
+						new Model({name: "John"}),
+						new Model({age: 42}),
+						new Model
+					])).be.undefined()
+
+					demand(await execute(sql`SELECT * FROM models`)).eql([
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: 42},
+						{id: 3, name: null, age: null}
+					])
+				})
+
+				it("must create models given SQLITE_MAX_VARIABLE_NUMBER columns",
+					async function() {
+					demand(SQLITE_MAX_VARIABLE_NUMBER % 3).equal(0)
+
+					var attrs = times(SQLITE_MAX_VARIABLE_NUMBER / 3, (i) => ({
+						id: i,
+						age: i % 100,
+						name: "John " + i
+					}))
+
+					demand(await create().create_(attrs.map((attrs) => (
+						new Model(attrs)
+					)))).be.undefined()
+
+					demand(await execute(sql`SELECT * FROM models`)).eql(attrs)
+				})
+
+				it("must create models given SQLITE_MAX_VARIABLE_NUMBER+1 columns",
+					async function() {
+					demand(SQLITE_MAX_VARIABLE_NUMBER % 3).equal(0)
+
+					var attrs = times(SQLITE_MAX_VARIABLE_NUMBER / 3 + 1, (i) => ({
+						id: i,
+						age: i % 100,
+						name: "John " + i
+					}))
+
+					demand(await create().create_(attrs.map((attrs) => (
+						new Model(attrs)
+					)))).be.undefined()
+
+					demand(await execute(sql`SELECT * FROM models`)).eql(attrs)
+				})
+
+				it("must create models given all empty attributes", async function() {
+					demand(await create().create_([{}, {}, {}])).be.undefined()
+
+					demand(await execute(sql`SELECT * FROM models`)).eql([
+						{id: 1, name: "", age: 0},
+						{id: 2, name: "", age: 0},
+						{id: 3, name: "", age: 0}
+					])
+				})
+
+				it("must create models given one empty attributes", async function() {
+					demand(await create().create_([
+						{name: "John"},
+						{},
+						{age: 42}
+					])).be.undefined()
+
+					demand(await execute(sql`SELECT * FROM models`)).eql([
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: null},
+						{id: 3, name: null, age: 42}
 					])
 				})
 			})
@@ -528,7 +745,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 			})
 
 			describe("given a model and attributes", function() {
-				it("must update model queried by idColumn and return nothing",
+				it("must update model queried by idColumn",
 					async function() {
 					var heaven = create({idAttribute: "age", idColumn: "age"})
 
@@ -543,8 +760,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 					])
 				})
 
-				it("must do and return nothing given empty attributes",
-					async function() {
+				it("must do nothing given empty attributes", async function() {
 					demand(await create().update(new Model({id: 1}), {})).be.undefined()
 					demand(await execute(sql`SELECT * FROM models`)).eql(ROWS)
 				})
@@ -580,8 +796,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 			})
 
 			describe("given a numeric id and attributes", function() {
-				it("must delete models queried by idColumn and return nothing",
-					async function() {
+				it("must delete models queried by idColumn", async function() {
 					demand(await create({idColumn: "age"}).delete(13)).be.undefined()
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
@@ -626,4 +841,10 @@ module.exports = function(SqliteHeaven, db, execute) {
 		var heaven = new HeavenOnTest(Model, db, "models")
 		return props ? heaven.with(props) : heaven
 	}
+}
+
+function times(times, fn) {
+	var results = new Array(times)
+	for (var i = 0; i < times; ++i) results[i] = fn(i)
+	return results
 }

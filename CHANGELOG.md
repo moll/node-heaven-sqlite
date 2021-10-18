@@ -8,6 +8,8 @@
 
   This could be handy if you pool Sqlite connections and want to overwrite the default connection of a Heaven instance with one that has a transaction open, for example.
 
+- Adds `SqliteHeaven.prototype.create_` for when you're not interested in the id of the created model(s). This both permits batch creating (a single `INSERT` statement) and improves performance by skipping parsing the returned attributes.
+
 - Returns `undefined` from `SqliteHeaven.prototype.update` and `SqliteHeaven.prototype.delete` instead of the Sqlite implementation's regular result.  
   Trying to always return the implementation's result (which was the number of rows updated with Better SQLite3) interferes with batching updates.
 

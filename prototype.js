@@ -3,6 +3,7 @@ var Sql = require("sqlate").Sql
 var sql = require("sqlate")
 var isEmpty = require("./lib").isEmpty
 var update = require("./lib/sql").update
+var BAD_ATTRS = "Bad Attributes: "
 
 exports.idColumn = "id"
 
@@ -79,6 +80,23 @@ exports._read = function(query) {
 	}
 }
 
+exports.create_ = function(attrs, opts) {
+	switch (this.typeof(attrs)) {
+		case "model":
+		case "object":
+			attrs = [attrs]
+			break
+
+		case "array":
+			if (attrs.some(isNully)) throw new TypeError(BAD_ATTRS + "Null in array")
+			break
+
+		default: throw new TypeError(BAD_ATTRS + attrs)
+	}
+
+	return this._create_(attrs.map(this.serialize, this), opts)
+}
+
 exports._update = function(query, attrs) {
 	switch (this.typeof(query)) {
 		case "model":
@@ -119,3 +137,5 @@ exports.typeof = function(value) {
 	if (value instanceof Sql) return "sql"
 	return Heaven.prototype.typeof.call(this, value)
 }
+
+function isNully(value) { return value == null }

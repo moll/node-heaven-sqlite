@@ -3,6 +3,7 @@ var SqliteHeaven = require("./prototype")
 var Sql = require("sqlate").Sql
 var sql = require("sqlate")
 var insert = require("./lib/sql").insert
+var insertAll = require("./lib/sql").insertAll
 var update = require("./lib/sql").update
 exports = module.exports = BetterSqliteHeaven
 exports.insert = insert
@@ -22,6 +23,7 @@ BetterSqliteHeaven.prototype.idColumn = SqliteHeaven.idColumn
 BetterSqliteHeaven.prototype.with = SqliteHeaven.with
 BetterSqliteHeaven.prototype._search = SqliteHeaven._search
 BetterSqliteHeaven.prototype._read = SqliteHeaven._read
+BetterSqliteHeaven.prototype.create_ = SqliteHeaven.create_
 BetterSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
 
 BetterSqliteHeaven.prototype._create = function(attrs) {
@@ -33,6 +35,10 @@ BetterSqliteHeaven.prototype._create = function(attrs) {
 			WHERE _rowid_ = ${created.lastInsertRowid}
 		`)
 	})
+}
+
+BetterSqliteHeaven.prototype._create_ = function(attrs) {
+	insertAll(this.table, attrs).forEach(this.execute, this)
 }
 
 BetterSqliteHeaven.prototype._update = function(query, attrs) {

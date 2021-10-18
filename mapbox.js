@@ -3,6 +3,7 @@ var SqliteHeaven = require("./prototype")
 var Sql = require("sqlate").Sql
 var sql = require("sqlate")
 var insert = require("./lib/sql").insert
+var insertAll = require("./lib/sql").insertAll
 var update = require("./lib/sql").update
 exports = module.exports = MapboxSqliteHeaven
 exports.insert = insert
@@ -22,6 +23,7 @@ MapboxSqliteHeaven.prototype.idColumn = SqliteHeaven.idColumn
 MapboxSqliteHeaven.prototype.with = SqliteHeaven.with
 MapboxSqliteHeaven.prototype._search = SqliteHeaven._search
 MapboxSqliteHeaven.prototype._read = SqliteHeaven._read
+MapboxSqliteHeaven.prototype.create_ = SqliteHeaven.create_
 MapboxSqliteHeaven.prototype._update = SqliteHeaven._update
 MapboxSqliteHeaven.prototype._delete = SqliteHeaven._delete
 MapboxSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
@@ -39,6 +41,12 @@ MapboxSqliteHeaven.prototype._create = function(attrs) {
 
 		return created.then(() => last)
 	}))
+}
+
+MapboxSqliteHeaven.prototype._create_ = function(attrs) {
+	return Promise.all(
+		insertAll(this.table, attrs).map(this.execute, this)
+	).then(() => undefined)
 }
 
 MapboxSqliteHeaven.prototype.select = function(sql) {
