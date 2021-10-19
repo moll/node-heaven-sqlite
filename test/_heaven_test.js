@@ -101,19 +101,19 @@ module.exports = function(SqliteHeaven, db, execute) {
 			it("must throw TypeError given undefined", function() {
 				var err
 				try { create().search(undefined) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given null", function() {
 				var err
 				try { create().search(null) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given an object", function() {
 				var err
 				try { create().search({}) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			describe("given a numeric id", function() {
@@ -181,25 +181,25 @@ module.exports = function(SqliteHeaven, db, execute) {
 				it("must throw TypeError given undefined in array", function() {
 					var err
 					try { create().search([undefined]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad query/i)
+					err.must.be.an.error(TypeError, /^Bad Query in Array: /)
 				})
 
 				it("must throw TypeError given null in array", function() {
 					var err
 					try { create().search([null]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad query/i)
+					err.must.be.an.error(TypeError, /^Bad Query in Array: /)
 				})
 
 				it("must throw TypeError given an object in array", function() {
 					var err
 					try { create().search([{}]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad query/i)
+					err.must.be.an.error(TypeError, /^Bad Query in Array: /)
 				})
 
 				it("must throw TypeError given numeric and string ids", function() {
 					var err
 					try { create().search([1, "John"]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /mixed/i)
+					err.must.be.an.error(TypeError, "Mixed Query in Array")
 				})
 
 				it("must resolve with empty array given an empty array",
@@ -258,25 +258,25 @@ module.exports = function(SqliteHeaven, db, execute) {
 			it("must throw TypeError given undefined", function() {
 				var err
 				try { create().read(undefined) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given null", function() {
 				var err
 				try { create().read(null) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given an object", function() {
 				var err
 				try { create().read({}) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given an array", function() {
 				var err
 				try { create().read([]) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			describe("given a numeric id", function() {
@@ -338,13 +338,13 @@ module.exports = function(SqliteHeaven, db, execute) {
 			it("must throw TypeError given undefined", function() {
 				var err
 				try { create().create(undefined) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad attributes/i)
+				err.must.be.an.error(TypeError, /^Bad Attributes: /)
 			})
 
 			it("must throw TypeError given null", function() {
 				var err
 				try { create().create(null) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad attributes/i)
+				err.must.be.an.error(TypeError, /^Bad Attributes: /)
 			})
 
 			// Ensures exceptions from the creation promise get propagated correctly.
@@ -396,25 +396,25 @@ module.exports = function(SqliteHeaven, db, execute) {
 				it("must throw TypeError given undefined", function() {
 					var err
 					try { create().create([undefined]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must throw TypeError given undefined and object array", function() {
 					var err
 					try { create().create([undefined, {}]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must throw TypeError given null", function() {
 					var err
 					try { create().create([null]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must throw TypeError given null and object", function() {
 					var err
 					try { create().create([null, {}]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must not create models given an empty array", async function() {
@@ -526,13 +526,13 @@ module.exports = function(SqliteHeaven, db, execute) {
 			it("must throw TypeError given undefined", function() {
 				var err
 				try { create().create_(undefined) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad attributes/i)
+				err.must.be.an.error(TypeError, /^Bad Attributes: /)
 			})
 
 			it("must throw TypeError given null", function() {
 				var err
 				try { create().create_(null) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad attributes/i)
+				err.must.be.an.error(TypeError, /^Bad Attributes: /)
 			})
 
 			// Ensures exceptions from the creation promise get propagated correctly.
@@ -580,25 +580,25 @@ module.exports = function(SqliteHeaven, db, execute) {
 				it("must throw TypeError given undefined", function() {
 					var err
 					try { create().create_([undefined]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must throw TypeError given undefined and object array", function() {
 					var err
 					try { create().create_([undefined, {}]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must throw TypeError given null", function() {
 					var err
 					try { create().create_([null]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must throw TypeError given null and object", function() {
 					var err
 					try { create().create_([null, {}]) } catch (ex) { err = ex }
-					err.must.be.an.error(TypeError, /bad attributes/i)
+					err.must.be.an.error(TypeError, /^Bad Attributes: /)
 				})
 
 				it("must not create models given an empty array", async function() {
@@ -726,25 +726,25 @@ module.exports = function(SqliteHeaven, db, execute) {
 				var err
 				try { create().update(undefined, {name: "John"}) }
 				catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given null", function() {
 				var err
 				try { create().update(null, {name: "John"}) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given an object", function() {
 				var err
 				try { create().update({}, {name: "John"}) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given an array", function() {
 				var err
 				try { create().update([], {name: "John"}) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			describe("given a numeric id and attributes", function() {
@@ -811,25 +811,25 @@ module.exports = function(SqliteHeaven, db, execute) {
 			it("must throw TypeError given undefined", function() {
 				var err
 				try { create().delete(undefined) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given null", function() {
 				var err
 				try { create().delete(null) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given an object", function() {
 				var err
 				try { create().delete({}) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			it("must throw TypeError given an array", function() {
 				var err
 				try { create().delete([]) } catch (ex) { err = ex }
-				err.must.be.an.error(TypeError, /bad query/i)
+				err.must.be.an.error(TypeError, /^Bad Query: /)
 			})
 
 			describe("given a numeric id and attributes", function() {
