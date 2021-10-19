@@ -42,18 +42,55 @@ module.exports = function(SqliteHeaven, db, execute) {
 	]
 
 	describe("as SqliteHeaven", function() {
+		describe("new", function() {
+			it("must be an instance of Heaven", function() {
+				new SqliteHeaven().must.be.an.instanceof(SqliteHeaven)
+			})
+
+			it("must set model to Object by default", function() {
+				new SqliteHeaven().model.must.equal(Object)
+			})
+
+			it("must set model, sqlite and table when given as arguments",
+				function() {
+				var sqlite = {}
+				var heaven = new SqliteHeaven(Model, sqlite, "models")
+				heaven.model.must.equal(Model)
+				heaven.sqlite.must.equal(sqlite)
+				heaven.table.must.equal("models")
+			})
+		})
+
 		describe(".prototype.with", function() {
+			it("must be an instance of Heaven", function() {
+				new SqliteHeaven().with({}).must.be.an.instanceof(SqliteHeaven)
+			})
+
+			it("must set new model", function() {
+				var heaven = new SqliteHeaven()
+				heaven.model.must.equal(Object)
+				heaven.with({model: Model}).model.must.equal(Model)
+			})
+
+			it("must set new idAttribute", function() {
+				var heaven = new SqliteHeaven().with({idAttribute: "age"})
+				heaven.idAttribute.must.equal("age")
+			})
+
 			it("must set new idColumn", function() {
-				create().with({idColumn: "age"}).idColumn.must.equal("age")
+				var heaven = new SqliteHeaven().with({idColumn: "age"})
+				heaven.idColumn.must.equal("age")
 			})
 
 			it("must set a new Sqlite instance", function() {
 				var newSqlite = {}
-				create().with({sqlite: newSqlite}).sqlite.must.equal(newSqlite)
+				var heaven = new SqliteHeaven().with({sqlite: newSqlite})
+				heaven.sqlite.must.equal(newSqlite)
 			})
 
 			it("must set new table", function() {
-				create().with({table: "new_models"}).table.must.equal("new_models")
+				var heaven = new SqliteHeaven().with({table: "new_models"})
+				heaven.table.must.equal("new_models")
 			})
 		})
 
