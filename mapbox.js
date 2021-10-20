@@ -7,6 +7,7 @@ var insertAll = require("./lib/sql").insertAll
 var update = require("./lib/sql").update
 exports = module.exports = MapboxSqliteHeaven
 exports.insert = insert
+exports.insertAll = insertAll
 exports.update = update
 
 function MapboxSqliteHeaven(model, sqlite, table) {
