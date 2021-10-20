@@ -1,6 +1,6 @@
 {
 	"name": "heaven-sqlite",
-	"version": "0.3.0",
+	"version": "1.0.0",
 	"description": "Heaven.js's Data Mapper or Table Data Gateway for SQLite. CRUD API that parses and serializes your models.",
 	"keywords": [
 		"sqlite",

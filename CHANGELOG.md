@@ -1,4 +1,4 @@
-## Unreleased
+## 1.0.0 (Oct 20, 2021)
 - Permits overwriting the `sqlite` and `table` properties by calling `SqliteHeaven.prototype.with`:
 
   ```javascript
