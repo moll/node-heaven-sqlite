@@ -32,8 +32,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 		}
 	}
 
-	beforeEach(function() { return execute(sql`BEGIN`) })
-	afterEach(function() { return execute(sql`ROLLBACK`) })
+	beforeEach(() => execute(sql`BEGIN`))
+	afterEach(() => execute(sql`ROLLBACK`))
 
 	var ROWS = [
 		{id: 1, name: "Mike", age: 13},
@@ -95,8 +95,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 		})
 
 		describe(".prototype.search", function() {
-			beforeEach(execute.bind(null, TABLE_DDL))
-			beforeEach(insert.bind(null, "models", ROWS))
+			beforeEach(() => execute(TABLE_DDL))
+			beforeEach(() => insert("models", ROWS))
 
 			it("must throw TypeError given undefined", function() {
 				var err
@@ -227,8 +227,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 				it("must resolve with models given string ids", async function() {
 					await execute(sql`INSERT INTO models (name, age) VALUES ('Rob', 55)`)
 
-					var heaven = create({idColumn: "name"})
-					demand(await heaven.search(["John", "Rob"])).eql([
+					demand(await create({idColumn: "name"}).search(["John", "Rob"])).eql([
 						new Model({id: 2, name: "John", age: 13}),
 						new Model({id: 4, name: "Rob", age: 55})
 					])
@@ -252,8 +251,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 		})
 
 		describe(".prototype.read", function() {
-			beforeEach(execute.bind(null, TABLE_DDL))
-			beforeEach(insert.bind(null, "models", ROWS))
+			beforeEach(() => execute(TABLE_DDL))
+			beforeEach(() => insert("models", ROWS))
 
 			it("must throw TypeError given undefined", function() {
 				var err
@@ -296,8 +295,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 				})
 
 				it("must resolve with model queried by idColumn", async function() {
-					var heaven = create({idColumn: "name"})
-					var model = await heaven.read("Mike")
+					var model = await create({idColumn: "name"}).read("Mike")
 					model.must.eql(new Model({id: 1, name: "Mike", age: 13}))
 				})
 
@@ -333,7 +331,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 		})
 
 		describe(".prototype.create", function() {
-			beforeEach(execute.bind(null, TABLE_DDL))
+			beforeEach(() => execute(TABLE_DDL))
 
 			it("must throw TypeError given undefined", function() {
 				var err
@@ -350,7 +348,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 			// Ensures exceptions from the creation promise get propagated correctly.
 			it("must throw error on constraint violation", async function() {
 				var err
-				try { await create().create([{name: "Mike", age: 101}]) }
+				try { await create().create({name: "Mike", age: 101}) }
 				catch (ex) { err = ex }
 				err.must.be.an.error(/CHECK constraint failed/)
 				demand(await execute(sql`SELECT * FROM models`)).eql([])
@@ -424,18 +422,14 @@ module.exports = function(SqliteHeaven, db, execute) {
 				})
 
 				it("must create model given empty attributes", async function() {
-					var heaven = create()
-					var model = await heaven.create([{}])
-
+					var model = await create().create([{}])
 					var rows = await execute(sql`SELECT * FROM models`)
 					rows.must.eql([{id: 1, name: "", age: 0}])
 					model.must.eql([{id: 1, name: "", age: 0}])
 				})
 
 				it("must create model given empty model", async function() {
-					var heaven = create()
-					var model = await heaven.create([new Model])
-
+					var model = await create().create([new Model])
 					var rows = await execute(sql`SELECT * FROM models`)
 					rows.must.eql([{id: 1, name: "", age: 0}])
 					model.must.eql([new Model({id: 1, name: "", age: 0})])
@@ -501,7 +495,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 					])
 				})
 
-				it("must return models in order given models", async function() {
+				it("must return models in order of given models", async function() {
 					var models = await create().create([
 						new Model({name: "Mike", age: 42}),
 						new Model({name: "John", age: 13})
@@ -521,7 +515,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 		})
 
 		describe(".prototype.create_", function() {
-			beforeEach(execute.bind(null, TABLE_DDL))
+			beforeEach(() => execute(TABLE_DDL))
 
 			it("must throw TypeError given undefined", function() {
 				var err
@@ -538,7 +532,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 			// Ensures exceptions from the creation promise get propagated correctly.
 			it("must throw error on constraint violation", async function() {
 				var err
-				try { await create().create_([{name: "Mike", age: 101}]) }
+				try { await create().create_({name: "Mike", age: 101}) }
 				catch (ex) { err = ex }
 				err.must.be.an.error(/CHECK constraint failed/)
 				demand(await execute(sql`SELECT * FROM models`)).eql([])
@@ -607,17 +601,13 @@ module.exports = function(SqliteHeaven, db, execute) {
 				})
 
 				it("must create model given empty attributes", async function() {
-					var heaven = create()
-					demand(await heaven.create_([{}])).be.undefined()
-
+					demand(await create().create_([{}])).be.undefined()
 					var rows = await execute(sql`SELECT * FROM models`)
 					rows.must.eql([{id: 1, name: "", age: 0}])
 				})
 
 				it("must create model given empty model", async function() {
-					var heaven = create()
-					demand(await heaven.create_([new Model])).be.undefined()
-
+					demand(await create().create_([new Model])).be.undefined()
 					var rows = await execute(sql`SELECT * FROM models`)
 					rows.must.eql([{id: 1, name: "", age: 0}])
 				})
@@ -719,8 +709,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 		})
 
 		describe(".prototype.update", function() {
-			beforeEach(execute.bind(null, TABLE_DDL))
-			beforeEach(insert.bind(null, "models", ROWS))
+			beforeEach(() => execute(TABLE_DDL))
+			beforeEach(() => insert("models", ROWS))
 
 			it("must throw TypeError given undefined", function() {
 				var err
@@ -749,7 +739,9 @@ module.exports = function(SqliteHeaven, db, execute) {
 
 			describe("given a numeric id and attributes", function() {
 				it("must update models queried by idColumn", async function() {
-					await create({idColumn: "age"}).update(13, {name: "Raul"})
+					demand(
+						await create({idColumn: "age"}).update(13, {name: "Raul"})
+					).be.undefined()
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
 						{id: 1, name: "Raul", age: 13},
@@ -759,14 +751,16 @@ module.exports = function(SqliteHeaven, db, execute) {
 				})
 
 				it("must do nothing given empty attributes", async function() {
-					await create().update(1, {})
+					demand(await create().update(1, {})).be.undefined()
 					demand(await execute(sql`SELECT * FROM models`)).eql(ROWS)
 				})
 			})
 
 			describe("given a string id and attributes", function() {
 				it("must update models queried by idColumn", async function() {
-					await create({idColumn: "name"}).update("Mike", {name: "Raul"})
+					demand(
+						await create({idColumn: "name"}).update("Mike", {name: "Raul"})
+					).be.undefined()
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
 						{id: 1, name: "Raul", age: 13},
@@ -776,7 +770,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 				})
 
 				it("must do nothing given empty attributes", async function() {
-					await create().update("Mike", {})
+					demand(await create().update("Mike", {})).be.undefined()
 					demand(await execute(sql`SELECT * FROM models`)).eql(ROWS)
 				})
 			})
@@ -805,8 +799,8 @@ module.exports = function(SqliteHeaven, db, execute) {
 		})
 
 		describe(".prototype.delete", function() {
-			beforeEach(execute.bind(null, TABLE_DDL))
-			beforeEach(insert.bind(null, "models", ROWS))
+			beforeEach(() => execute(TABLE_DDL))
+			beforeEach(() => insert("models", ROWS))
 
 			it("must throw TypeError given undefined", function() {
 				var err
@@ -844,7 +838,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 
 			describe("given a string id and attributes", function() {
 				it("must delete models queried by idColumn", async function() {
-					await create({idColumn: "name"}).delete("Mike")
+					demand(await create({idColumn: "name"}).delete("Mike")).be.undefined()
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
 						{id: 2, name: "John", age: 13}
@@ -855,7 +849,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 			describe("given a model and attributes", function() {
 				it("must delete model queried by idColumn", async function() {
 					var heaven = create({idAttribute: "age", idColumn: "age"})
-					await heaven.delete(new Model({age: 13}))
+					demand(await heaven.delete(new Model({age: 13}))).be.undefined()
 
 					demand(await execute(sql`SELECT * FROM models`)).eql([
 						{id: 3, name: "Mike", age: 42}
