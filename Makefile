@@ -1,8 +1,9 @@
 NODE = node
 NODE_OPTS = --use-strict
+NPM = npm
 MOCHA = ./node_modules/.bin/_mocha
 TEST = test/**/*_test.js
-NPM_REBUILD = npm --ignore-scripts false rebuild --build-from-source
+NPM_REBUILD = $(NPM) --ignore-scripts false rebuild --build-from-source
 
 love:
 	@echo "Feel like makin' love."
@@ -23,18 +24,19 @@ pack:
 	@file=$$(npm pack); echo "$$file"; tar tf "$$file"
 
 publish:
-	npm publish
+	$(NPM) publish
 
 tag:
 	git tag "v$$($(NODE) -e 'console.log(require("./package").version)')"
 
 rebuild:
 	$(NPM_REBUILD) sqlite3
-	$(NPM_REBUILD) better-sqlite3
+	cd node_modules/better-sqlite3 && \
+	$(NPM) --ignore-scripts false run build-release
 
 clean:
 	-$(RM) *.tgz
-	npm prune --production
+	$(NPM) prune --production
 
 .PHONY: love
 .PHONY: test spec autotest autospec
