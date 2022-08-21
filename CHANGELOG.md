@@ -1,5 +1,6 @@
 ## Unreleased
-- Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v7.
+- Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v7.  
+  This really just raised the peer-dependency version bounds.
 
 ## 1.0.0 (Oct 20, 2021)
 - Permits overwriting the `sqlite` and `table` properties by calling `SqliteHeaven.prototype.with`:
