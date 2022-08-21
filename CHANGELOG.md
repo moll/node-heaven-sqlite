@@ -1,4 +1,4 @@
-## Unreleased
+## 1.1.0 (Aug 21, 2022)
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v7.  
   This really just raised the peer-dependency version bounds.
 
