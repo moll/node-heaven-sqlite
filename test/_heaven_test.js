@@ -1,3 +1,4 @@
+var _ = require("../lib")
 var O = require("oolong")
 var sql = require("sqlate")
 var demand = require("must")
@@ -20,7 +21,9 @@ class Model {
 	toJSON() { return O.clone(this.attributes) }
 }
 
-module.exports = function(SqliteHeaven, db, execute) {
+module.exports = function(SqliteHeaven, sqlite, execute, SQLITE_VERSION) {
+	var USE_RETURNING = _.isVersionGt(SQLITE_VERSION, "3.35")
+
 	class HeavenOnTest extends SqliteHeaven {
 		assign(model, attrs) { return model.set(attrs) }
 
@@ -458,13 +461,21 @@ module.exports = function(SqliteHeaven, db, execute) {
 				it("must create models with mismatching attributes", async function() {
 					var models = await create().create([{name: "John"}, {}, {age: 42}])
 
-					demand(await execute(sql`SELECT * FROM models`)).eql([
+					demand(await execute(sql`SELECT * FROM models`)).eql(USE_RETURNING ? [
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: null},
+						{id: 3, name: null, age: 42}
+					] : [
 						{id: 1, name: "John", age: 0},
 						{id: 2, name: "", age: 0},
 						{id: 3, name: "", age: 42}
 					])
 
-					models.must.eql([
+					models.must.eql(USE_RETURNING ? [
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: null},
+						{id: 3, name: null, age: 42}
+					] : [
 						{id: 1, name: "John", age: 0},
 						{id: 2, name: "", age: 0},
 						{id: 3, name: "", age: 42}
@@ -514,13 +525,21 @@ module.exports = function(SqliteHeaven, db, execute) {
 						new Model({age: 42})
 					])
 
-					demand(await execute(sql`SELECT * FROM models`)).eql([
+					demand(await execute(sql`SELECT * FROM models`)).eql(USE_RETURNING ? [
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: null},
+						{id: 3, name: null, age: 42}
+					] : [
 						{id: 1, name: "John", age: 0},
 						{id: 2, name: "", age: 0},
 						{id: 3, name: "", age: 42}
 					])
 
-					models.must.eql([
+					models.must.eql(USE_RETURNING ? [
+						new Model({id: 1, name: "John", age: null}),
+						new Model({id: 2, name: null, age: null}),
+						new Model({id: 3, name: null, age: 42})
+					] : [
 						new Model({id: 1, name: "John", age: 0}),
 						new Model({id: 2, name: "", age: 0}),
 						new Model({id: 3, name: "", age: 42})
@@ -912,7 +931,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 	}
 
 	function create(props) {
-		var heaven = new HeavenOnTest(Model, db, "models")
+		var heaven = new HeavenOnTest(Model, sqlite, "models")
 		return props ? heaven.with(props) : heaven
 	}
 }

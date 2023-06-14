@@ -1,3 +1,4 @@
+var _ = require("./lib")
 var Heaven = require("heaven/sync")
 var SqliteHeaven = require("./prototype")
 var Sql = require("sqlate").Sql
@@ -5,6 +6,8 @@ var sql = require("sqlate")
 var insert = require("./lib/sql").insert
 var insertAll = require("./lib/sql").insertAll
 var update = require("./lib/sql").update
+var SQLITE_VERSION
+var USE_RETURNING
 exports = module.exports = BetterSqliteHeaven
 exports.insert = insert
 exports.insertAll = insertAll
@@ -28,7 +31,12 @@ BetterSqliteHeaven.prototype.create_ = SqliteHeaven.create_
 BetterSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
 
 BetterSqliteHeaven.prototype._create = function(attrs) {
-	return attrs.map((attrs) => {
+	if (USE_RETURNING == null) USE_RETURNING = hasSqliteReturning(this.sqlite)
+
+	if (USE_RETURNING) return _.flatten(insertAll(this.table, attrs).map((q) => (
+		this.select(sql`${q} RETURNING *`)
+	)))
+	else return attrs.map((attrs) => {
 		var created = this.execute(insert(this.table, attrs))
 
 		return this.select1(sql`
@@ -66,3 +74,14 @@ BetterSqliteHeaven.prototype.execute = function(sql) {
 }
 
 BetterSqliteHeaven.prototype.return = function(value) { return value }
+
+function hasSqliteReturning(sqlite) {
+	if (SQLITE_VERSION == null) SQLITE_VERSION = getSqliteVersion(sqlite)
+	return _.isVersionGt(SQLITE_VERSION, "3.35")
+}
+
+function getSqliteVersion(sqlite) {
+	// Better SQLite3 doesn't expose the compiled version like Mapbox's SQLite3
+	// does: https://github.com/WiseLibs/better-sqlite3/issues/1021
+	return sqlite.prepare("SELECT sqlite_version() AS v").get().v
+}

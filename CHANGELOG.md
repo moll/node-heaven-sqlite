@@ -1,6 +1,13 @@
 ## Unreleased
 - Adds support for [Mapbox's/Ghost's SQLite3][mapbox-sqlite3] v5.  
-  This really just raised the peer-dependency version bounds.
+  This really just expanded the peer-dependency version bounds.
+
+- Uses SQLite3 v3.35's `INSERT … RETURNING` statement when possible to improve the performance of `Heaven.prototype.create` by permitting batched inserts (a single `INSERT` statement for all rows).  
+  Previously `Heaven.prototype.create` inserted rows one by one and used `last_insert_rowid()` to re-read them. This was necessary to get, e.g., the auto-incremented ids for the rows.
+
+  Batched inserts may explicitly set some columns as `NULL`s that triggered the SQL schema's `DEFAULT` value before in situations where the array of attributes has inconsistent keys. That's because batch insert requires all rows to affect the same columns _and_ there's no explicit `DEFAULT` keyword in SQLite for a single value.
+
+  Given this may affect someone depending on individual insertion and the defaulting behavior, bumping the major version.
 
 ## 1.1.0 (Aug 21, 2022)
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v7.  

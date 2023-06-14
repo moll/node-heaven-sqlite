@@ -1,3 +1,4 @@
+var _ = require("./lib")
 var Heaven = require("heaven/async")
 var SqliteHeaven = require("./prototype")
 var Sql = require("sqlate").Sql
@@ -5,6 +6,8 @@ var sql = require("sqlate")
 var insert = require("./lib/sql").insert
 var insertAll = require("./lib/sql").insertAll
 var update = require("./lib/sql").update
+var SQLITE_VERSION = require("sqlite3").VERSION
+var USE_RETURNING = _.isVersionGt(SQLITE_VERSION, "3.35")
 exports = module.exports = MapboxSqliteHeaven
 exports.insert = insert
 exports.insertAll = insertAll
@@ -30,7 +33,11 @@ MapboxSqliteHeaven.prototype._delete = SqliteHeaven._delete
 MapboxSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
 
 MapboxSqliteHeaven.prototype._create = function(attrs) {
-	return Promise.all(attrs.map((attrs) => {
+	if (USE_RETURNING)
+		return Promise.all(insertAll(this.table, attrs).map((query) => (
+			this.select(sql`${query} RETURNING *`)
+		))).then(_.flatten)
+	else return Promise.all(attrs.map((attrs) => {
 		var created = this.execute(insert(this.table, attrs))
 
 		// Fire off request to last row immediately as others may be interleaved
