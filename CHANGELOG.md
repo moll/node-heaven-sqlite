@@ -1,6 +1,6 @@
 ## Unreleased
 - Adds support for [Mapbox's/Ghost's SQLite3][mapbox-sqlite3] v5.  
-  This really just expanded the peer-dependency version bounds.
+- Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v8.  
 
 - Uses SQLite3 v3.35's `INSERT … RETURNING` statement when possible to improve the performance of `Heaven.prototype.create` by permitting batched inserts (a single `INSERT` statement for all rows).  
   Previously `Heaven.prototype.create` inserted rows one by one and used `last_insert_rowid()` to re-read them. This was necessary to get, e.g., the auto-incremented ids for the rows.
