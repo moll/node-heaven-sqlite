@@ -1,5 +1,4 @@
 var _ = require("../lib")
-var O = require("oolong")
 var sql = require("sqlate")
 var demand = require("must")
 
@@ -16,8 +15,8 @@ var TABLE_DDL = sql`
 class Model {
 	// Saving attributes to this.attributes catches double model initialization.
 	constructor(attrs) { this.attributes = attrs || {} }
-	set(attrs) { O.assign(this.attributes, attrs); return this }
-	toJSON() { return O.clone(this.attributes) }
+	set(attrs) { _.assign(this.attributes, attrs); return this }
+	toJSON() { return _.clone(this.attributes) }
 }
 
 module.exports = function(SqliteHeaven, sqlite, execute, SQLITE_VERSION) {
@@ -925,9 +924,9 @@ module.exports = function(SqliteHeaven, sqlite, execute, SQLITE_VERSION) {
 	function insert(table, rows) {
 		return execute(sql`
 			INSERT INTO ${sql.table(table)}
-				${sql.tuple(O.keys(rows[0]).map(sql.column))}
+				${sql.tuple(_.keys(rows[0]).map(sql.column))}
 			VALUES
-				${sql.csv(rows.map(O.values).map(sql.tuple))}
+				${sql.csv(rows.map(_.values).map(sql.tuple))}
 		`)
 	}
 
