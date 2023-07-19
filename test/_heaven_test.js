@@ -1,7 +1,6 @@
-var O = require("oolong")
+var _ = require("../lib")
 var sql = require("sqlate")
 var demand = require("must")
-var SQLITE_MAX_VARIABLE_NUMBER = 999
 
 var TABLE_DDL = sql`
 	CREATE TEMPORARY TABLE "models" (
@@ -16,11 +15,15 @@ var TABLE_DDL = sql`
 class Model {
 	// Saving attributes to this.attributes catches double model initialization.
 	constructor(attrs) { this.attributes = attrs || {} }
-	set(attrs) { O.assign(this.attributes, attrs); return this }
-	toJSON() { return O.clone(this.attributes) }
+	set(attrs) { _.assign(this.attributes, attrs); return this }
+	toJSON() { return _.clone(this.attributes) }
 }
 
-module.exports = function(SqliteHeaven, db, execute) {
+module.exports = function(SqliteHeaven, sqlite, execute, SQLITE_VERSION) {
+	var USE_RETURNING = _.isVersionGt(SQLITE_VERSION, "3.35")
+	var USE_32K_VARS = _.isVersionGt(SQLITE_VERSION, "3.32")
+	var SQLITE_MAX_VARIABLE_NUMBER = USE_32K_VARS ? 32766 : 999
+
 	class HeavenOnTest extends SqliteHeaven {
 		assign(model, attrs) { return model.set(attrs) }
 
@@ -458,13 +461,21 @@ module.exports = function(SqliteHeaven, db, execute) {
 				it("must create models with mismatching attributes", async function() {
 					var models = await create().create([{name: "John"}, {}, {age: 42}])
 
-					demand(await execute(sql`SELECT * FROM models`)).eql([
+					demand(await execute(sql`SELECT * FROM models`)).eql(USE_RETURNING ? [
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: null},
+						{id: 3, name: null, age: 42}
+					] : [
 						{id: 1, name: "John", age: 0},
 						{id: 2, name: "", age: 0},
 						{id: 3, name: "", age: 42}
 					])
 
-					models.must.eql([
+					models.must.eql(USE_RETURNING ? [
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: null},
+						{id: 3, name: null, age: 42}
+					] : [
 						{id: 1, name: "John", age: 0},
 						{id: 2, name: "", age: 0},
 						{id: 3, name: "", age: 42}
@@ -514,13 +525,21 @@ module.exports = function(SqliteHeaven, db, execute) {
 						new Model({age: 42})
 					])
 
-					demand(await execute(sql`SELECT * FROM models`)).eql([
+					demand(await execute(sql`SELECT * FROM models`)).eql(USE_RETURNING ? [
+						{id: 1, name: "John", age: null},
+						{id: 2, name: null, age: null},
+						{id: 3, name: null, age: 42}
+					] : [
 						{id: 1, name: "John", age: 0},
 						{id: 2, name: "", age: 0},
 						{id: 3, name: "", age: 42}
 					])
 
-					models.must.eql([
+					models.must.eql(USE_RETURNING ? [
+						new Model({id: 1, name: "John", age: null}),
+						new Model({id: 2, name: null, age: null}),
+						new Model({id: 3, name: null, age: 42})
+					] : [
 						new Model({id: 1, name: "John", age: 0}),
 						new Model({id: 2, name: "", age: 0}),
 						new Model({id: 3, name: "", age: 42})
@@ -679,7 +698,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 					])
 				})
 
-				it("must create models given SQLITE_MAX_VARIABLE_NUMBER columns",
+				it(`must create models given ${SQLITE_MAX_VARIABLE_NUMBER} columns`,
 					async function() {
 					demand(SQLITE_MAX_VARIABLE_NUMBER % 3).equal(0)
 
@@ -693,7 +712,7 @@ module.exports = function(SqliteHeaven, db, execute) {
 					demand(await execute(sql`SELECT * FROM models`)).eql(attrs)
 				})
 
-				it("must create models given SQLITE_MAX_VARIABLE_NUMBER+1 columns",
+				it(`must create models given ${SQLITE_MAX_VARIABLE_NUMBER+1} columns`,
 					async function() {
 					demand(SQLITE_MAX_VARIABLE_NUMBER % 3).equal(0)
 
@@ -905,14 +924,14 @@ module.exports = function(SqliteHeaven, db, execute) {
 	function insert(table, rows) {
 		return execute(sql`
 			INSERT INTO ${sql.table(table)}
-				${sql.tuple(O.keys(rows[0]).map(sql.column))}
+				${sql.tuple(_.keys(rows[0]).map(sql.column))}
 			VALUES
-				${sql.csv(rows.map(O.values).map(sql.tuple))}
+				${sql.csv(rows.map(_.values).map(sql.tuple))}
 		`)
 	}
 
 	function create(props) {
-		var heaven = new HeavenOnTest(Model, db, "models")
+		var heaven = new HeavenOnTest(Model, sqlite, "models")
 		return props ? heaven.with(props) : heaven
 	}
 }

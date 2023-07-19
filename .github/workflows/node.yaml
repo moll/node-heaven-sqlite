@@ -1,27 +1,102 @@
 name: Tests on Node.js
-on: [push, pull_request]
+"on": [push, pull_request]
 
 jobs:
   test:
-    name: "Node.js v${{matrix.node}}"
+    name: >
+      Node.js v${{matrix.versions.node}}${{
+        matrix.versions.mapbox-sqlite3 &&
+        format(', Mapbox SQLite v{0}', matrix.versions.mapbox-sqlite3)
+      }}${{
+        matrix.versions.better-sqlite3 &&
+        format(', Better SQLite v{0}', matrix.versions.better-sqlite3)
+      }}
+
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node:
-          # Better SQLite3 v6 depends on Node >= v8 and < 16.
-          - "8"
-          - "9"
-          - "10"
-          - "11"
-          - "12"
-          - "13"
-          - "14"
-          - "15"
+        # Mapbox SQLite3:
+        # v4 works even on v20.
+        # v5 depends on Node >= v10, but works on v8, too.
+        #
+        # Better SQLite3:
+        # v6 depends on Node >= v8 and <= 15.
+        # v7 depends on Node >= 10, <= 18.
+        # v8 depends on Node >= 14.
+        versions:
+          - node: "8"
+            mapbox-sqlite3: "4"
+            better-sqlite3: "6"
+
+          - node: "8"
+            better-sqlite3: "6"
+
+          # Better SQLite v6 on Node v9 requires Python 2, which isn't
+          # available on GitHub Actions.
+
+          - node: "10"
+            better-sqlite3: "7"
+
+          # Better SQLite v7 on Node v11 requires Python 2, which isn't
+          # available on GitHub Actions.
+
+          - node: "12"
+            better-sqlite3: "7"
+
+          - node: "13"
+            better-sqlite3: "7"
+
+          - node: "14"
+
+          - node: "15"
+
+          - node: "15"
+            better-sqlite3: "6"
+
+          - node: "16"
+
+          - node: "17"
+
+          - node: "18"
+            better-sqlite3: "7"
+
+          - node: "18"
+
+          - node: "19"
+
+          - node: "20"
+            mapbox-sqlite3: "4"
+
+          - node: "20"
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with: {node-version: "${{matrix.node}}"}
-      - run: npm install
-      - run: make spec
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js v${{matrix.versions.node}}
+        uses: actions/setup-node@v3
+        with: {node-version: "${{matrix.versions.node}}"}
+
+      - name: Install NPMs
+        run: npm install --ignore-scripts
+
+      - name: Install Mapbox SQLite3 v${{matrix.versions.mapbox-sqlite3 || '?'}}
+        if: matrix.versions.mapbox-sqlite3
+        run: >
+          npm install --ignore-scripts
+          sqlite3@${{matrix.versions.mapbox-sqlite3}}
+
+      - name: Install Better SQLite3 v${{matrix.versions.better-sqlite3 || '?'}}
+        if: matrix.versions.better-sqlite3
+        run: >
+          npm install --ignore-scripts
+          better-sqlite3@${{matrix.versions.better-sqlite3}}
+
+      - name: List NPMs
+        run: npm ls sqlite3 better-sqlite3
+
+      - name: Compile SQLites
+        run: npm rebuild
+
+      - name: Run tests
+        run: make spec
