@@ -22,7 +22,7 @@ Installing
 npm install heaven-sqlite
 ```
 
-Heaven.js for SQLite follows [semantic versioning](http://semver.org), so feel free to depend on its major version with something like `>= 1.0.0 < 2` (a.k.a `^1.0.0`).
+Heaven.js for SQLite follows [semantic versioning](http://semver.org), so feel free to depend on its major version with something like `>= 2 < 3` (a.k.a `^2`).
 
 
 Using with Mapbox's SQLite3

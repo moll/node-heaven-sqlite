@@ -1,4 +1,4 @@
-## Unreleased
+## 2.0.0 (Jul 19, 2023)
 - Adds support for [Mapbox's/Ghost's SQLite3][mapbox-sqlite3] v5.
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v8.
 
@@ -40,7 +40,7 @@
   ```javascript
   var SqliteHeaven = require("heaven-sqlite/better")
   var Sqlite3 = require("better-sqlite3")
-  var sqlite = new Sqlite3.Database(":memory:", {memory: true})
+  var sqlite = new Sqlite3.Database(":memory:")
 
   function Model(attrs) { Object.assign(this, attrs)}
   var modelsDb = new SqliteHeaven(Model, sqlite, "models")
