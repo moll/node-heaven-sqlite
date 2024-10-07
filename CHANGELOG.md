@@ -2,6 +2,20 @@
 - Refactors SQLite version detection for [Better SQLite3][better-sqlite3] to be per-SQLite connection, permitting parallel use of different versions.  
   This also permits using the Better SQLite3 Heaven adapter with different SQLite modules.
 
+- Adds support for [Node v22.5's experimental SQLite module][node-sqlite3].
+
+  ```js
+  var SqliteHeaven = require("heaven-sqlite")
+	var Sqlite = require("node:sqlite").DatabaseSync
+	var sqlite = new Sqlite(":memory:")
+  var heaven = new SqliteHeaven(sqlite, "models")
+  heaven.read(42)
+  ```
+
+  Note that Node v22.5 itself is buggy due to its [SQLite bindings returning empty rows if no rows were actually returned](https://github.com/nodejs/node/pull/53981). This was [fixed on Jul 23, 2024](https://github.com/nodejs/node/commit/db594d042bbde2cb37a2db11f5c284772a26a8e4) and released as [Node v22.6](https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V22.md#2024-08-06-version-2260-current-rafaelgss).
+
+[node-sqlite3]: https://nodejs.org/api/sqlite.html
+
 ## 2.0.0 (Jul 19, 2023)
 - Adds support for [Mapbox's/Ghost's SQLite3][mapbox-sqlite3] v5.
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v8.

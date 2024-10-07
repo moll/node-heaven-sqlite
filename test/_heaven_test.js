@@ -359,17 +359,17 @@ module.exports = function(SqliteHeaven, sqlite, execute, SQLITE_VERSION) {
 
 			describe("given attributes", function() {
 				it("must create model", async function() {
-					var model = await create().create({name: "John", age: 13})
+					var model = _.clone(await create().create({name: "John", age: 13}))
 					var rows = await execute(sql`SELECT * FROM models`)
 					rows.must.eql([{id: 1, name: "John", age: 13}])
 					model.must.eql({id: 1, name: "John", age: 13})
 				})
 
 				it("must create model given inherited attributes", async function() {
-					var model = await create().create(Object.create({
+					var model = _.clone(await create().create(Object.create({
 						name: "John",
 						age: 13
-					}))
+					})))
 
 					var rows = await execute(sql`SELECT * FROM models`)
 					rows.must.eql([{id: 1, name: "John", age: 13}])
@@ -377,7 +377,7 @@ module.exports = function(SqliteHeaven, sqlite, execute, SQLITE_VERSION) {
 				})
 
 				it("must create model given empty attributes", async function() {
-					var model = await create().create({})
+					var model = _.clone(await create().create({}))
 					var rows = await execute(sql`SELECT * FROM models`)
 					rows.must.eql([{id: 1, name: "", age: 0}])
 					model.must.eql({id: 1, name: "", age: 0})

@@ -5,6 +5,10 @@ MOCHA = ./node_modules/.bin/_mocha
 TEST = test/**/*_test.js
 NPM_REBUILD = $(NPM) --ignore-scripts false rebuild --build-from-source
 
+ifneq ($(filter v22.%, $(shell node -v)),)
+	NODE_OPTS += --experimental-sqlite
+endif
+
 love:
 	@echo "Feel like makin' love."
 
