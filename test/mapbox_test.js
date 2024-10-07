@@ -1,9 +1,9 @@
 var Sql = require("sqlate").Sql
-var Sqlite3 = require("sqlite3")
+var Sqlite = require("sqlite3")
 var SqliteHeaven = require("../mapbox")
-var SQLITE_VERSION = Sqlite3.VERSION
+var SQLITE_VERSION = Sqlite.VERSION
 
-var sqlite = new Sqlite3.Database(":memory:")
+var sqlite = new Sqlite.Database(":memory:")
 sqlite.serialize()
 
 function execute(sql) {

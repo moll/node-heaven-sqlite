@@ -1,11 +1,11 @@
 var Sql = require("sqlate").Sql
-var Sqlite3 = require("better-sqlite3")
+var Sqlite = require("better-sqlite3")
 var SqliteHeaven = require("../better")
 var BETTER_SQLITE3_VERSION = require("better-sqlite3/package").version
 
 var sqlite = /^6\./.test(BETTER_SQLITE3_VERSION)
-	? new Sqlite3(":memory:", {memory: true})
-	: new Sqlite3(":memory:")
+	? new Sqlite(":memory:", {memory: true})
+	: new Sqlite(":memory:")
 
 var SQLITE_VERSION = sqlite.prepare("SELECT sqlite_version() AS v").get().v
 
