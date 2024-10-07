@@ -34,12 +34,7 @@ rebuild:
 	cd node_modules/better-sqlite3 && \
 	$(NPM) --ignore-scripts false run build-release
 
-clean:
-	-$(RM) *.tgz
-	$(NPM) prune --production
-
 .PHONY: love
 .PHONY: test spec autotest autospec
 .PHONY: pack publish tag
 .PHONY: rebuild
-.PHONY: clean
