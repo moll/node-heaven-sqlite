@@ -8,9 +8,9 @@ var insert = require("./lib/sql").insert
 var insertAll = require("./lib/sql").insertAll
 var insertAllWithMaxVariables = require("./lib/sql").insertAllWithMaxVariables
 var update = require("./lib/sql").update
-var SQLITE_VERSION
-var SQLITE_MAX_VARIABLE_NUMBER
-var USE_RETURNING
+var sqliteVersions = new WeakMap
+var sqliteHasReturning = new WeakMap
+var sqliteMaxVariableNumbers = new WeakMap
 exports = module.exports = BetterSqliteHeaven
 exports.insert = insert
 exports.insertAll = insertAll
@@ -35,17 +35,14 @@ BetterSqliteHeaven.prototype.create_ = SqliteHeaven.create_
 BetterSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
 
 BetterSqliteHeaven.prototype._create = function(attrs) {
-	if (USE_RETURNING == null
-		? (USE_RETURNING = Sqlite.hasReturning(getSqliteVersion(this.sqlite)))
-		: USE_RETURNING
-	) return _.flatten(insertAllWithMaxVariables(
-		SQLITE_MAX_VARIABLE_NUMBER ||
-		(SQLITE_MAX_VARIABLE_NUMBER = getSqliteMaxVariableNumber(this.sqlite)),
+	var sqlite = this.sqlite
+
+	if (hasSqliteReturning(sqlite)) return _.flatten(insertAllWithMaxVariables(
+		getSqliteMaxVariableNumber(sqlite),
 		this.table,
 		attrs
-	).map((q) => (
-		this.select(sql`${q} RETURNING *`)
-	)))
+	).map((q) => this.select(sql`${q} RETURNING *`)))
+
 	else return attrs.map((attrs) => {
 		var created = this.execute(insert(this.table, attrs))
 
@@ -58,8 +55,7 @@ BetterSqliteHeaven.prototype._create = function(attrs) {
 
 BetterSqliteHeaven.prototype._create_ = function(attrs) {
 	insertAllWithMaxVariables(
-		SQLITE_MAX_VARIABLE_NUMBER ||
-		(SQLITE_MAX_VARIABLE_NUMBER = getSqliteMaxVariableNumber(this.sqlite)),
+		getSqliteMaxVariableNumber(this.sqlite),
 		this.table,
 		attrs
 	).forEach(this.execute, this)
@@ -91,13 +87,32 @@ BetterSqliteHeaven.prototype.execute = function(sql) {
 BetterSqliteHeaven.prototype.return = function(value) { return value }
 
 function getSqliteVersion(sqlite) {
-	// Better SQLite3 doesn't expose the compiled version like Mapbox's SQLite3
-	// does: https://github.com/WiseLibs/better-sqlite3/issues/1021
-	return SQLITE_VERSION == null
-		? (SQLITE_VERSION = sqlite.prepare("SELECT sqlite_version() AS v").get().v)
-		: SQLITE_VERSION
+	// While Better SQLite3 may eventually expose the compiled version like
+	// Mapbox's SQLite3 does, relying on sqlite_version() permits using different
+	// versions in parallel.
+	// https://github.com/WiseLibs/better-sqlite3/issues/1021
+	var version = sqliteVersions.get(sqlite)
+	if (version != null) return version
+
+	version = sqlite.prepare("SELECT sqlite_version() AS v").get().v
+	sqliteVersions.set(sqlite, version)
+	return version
 }
 
 function getSqliteMaxVariableNumber(sqlite) {
-	return Sqlite.getMaxVariableNumber(getSqliteVersion(sqlite))
+	var maxVariableNumber = sqliteMaxVariableNumbers.get(sqlite)
+	if (maxVariableNumber != null) return maxVariableNumber
+
+	maxVariableNumber = Sqlite.getMaxVariableNumber(getSqliteVersion(sqlite))
+	sqliteMaxVariableNumbers.set(sqlite, maxVariableNumber)
+	return maxVariableNumber
+}
+
+function hasSqliteReturning(sqlite) {
+	var hasReturning = sqliteHasReturning.get(sqlite)
+	if (hasReturning != null) return hasReturning
+
+	hasReturning = Sqlite.hasReturning(getSqliteVersion(sqlite))
+	sqliteHasReturning.set(sqlite, hasReturning)
+	return hasReturning
 }

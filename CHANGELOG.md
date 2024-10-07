@@ -1,3 +1,7 @@
+## Unreleased
+- Refactors SQLite version detection for [Better SQLite3][better-sqlite3] to be per-SQLite connection, permitting parallel use of different versions.  
+  This also permits using the Better SQLite3 Heaven adapter with different SQLite modules.
+
 ## 2.0.0 (Jul 19, 2023)
 - Adds support for [Mapbox's/Ghost's SQLite3][mapbox-sqlite3] v5.
 - Adds support for [Joshua Wise's Better SQLite3][better-sqlite3] v8.
