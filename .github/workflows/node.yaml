@@ -78,18 +78,18 @@ jobs:
         with: {node-version: "${{matrix.versions.node}}"}
 
       - name: Install NPMs
-        run: npm install --ignore-scripts
+        run: npm install --ignore-scripts --no-package-lock
 
       - name: Install Mapbox SQLite3 v${{matrix.versions.mapbox-sqlite3 || '?'}}
         if: matrix.versions.mapbox-sqlite3
         run: >
-          npm install --ignore-scripts
+          npm install --ignore-scripts --no-package-lock
           sqlite3@${{matrix.versions.mapbox-sqlite3}}
 
       - name: Install Better SQLite3 v${{matrix.versions.better-sqlite3 || '?'}}
         if: matrix.versions.better-sqlite3
         run: >
-          npm install --ignore-scripts
+          npm install --ignore-scripts --no-package-lock
           better-sqlite3@${{matrix.versions.better-sqlite3}}
 
       - name: List NPMs
