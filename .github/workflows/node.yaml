@@ -69,6 +69,8 @@ jobs:
             mapbox-sqlite3: "4"
 
           - node: "20"
+          - node: "21"
+          - node: "22"
 
     steps:
       - uses: actions/checkout@v3
