@@ -18,6 +18,11 @@
 		"url": "https://m811.com"
 	},
 
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/moll"
+	},
+
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/moll/node-heaven-sqlite.git"
