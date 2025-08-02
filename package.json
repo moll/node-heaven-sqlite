@@ -39,14 +39,14 @@
 
 	"peerDependencies": {
 		"sqlite3": ">= 4 < 6",
-		"better-sqlite3": ">= 6 < 12"
+		"better-sqlite3": ">= 6 < 13"
 	},
 
 	"devDependencies": {
 		"mocha": ">= 2 < 4",
 		"must": ">= 0.13.0 < 0.14",
 		"sqlite3": ">= 4 < 6",
-		"better-sqlite3": ">= 6 < 12"
+		"better-sqlite3": ">= 6 < 13"
 	},
 
 	"engines" : {
