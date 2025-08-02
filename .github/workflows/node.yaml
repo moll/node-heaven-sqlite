@@ -12,7 +12,8 @@ jobs:
         format(', Better SQLite v{0}', matrix.versions.better-sqlite3)
       }}
 
-    runs-on: ubuntu-latest
+    # Ubuntu 22.04 defaults to Python v3.10 which works with older node-gyps.
+    runs-on: ubuntu-22.04
     continue-on-error: ${{!!matrix.versions.flaky}}
 
     strategy:
