@@ -29,6 +29,7 @@ jobs:
         # v9 depends on Node >= 14.
         # v10 depends on Node >= 14.
         # v11 depends on Node >= 14.
+        # v12 depends on Node >= 19.
         versions:
           - node: "8"
             mapbox-sqlite3: "4"
@@ -80,6 +81,9 @@ jobs:
           - node: "22"
             better-sqlite3: "9"
             mapbox-sqlite3: "4"
+
+          - node: "23"
+          - node: "24"
 
     steps:
       - uses: actions/checkout@v3
