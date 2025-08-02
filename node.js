@@ -32,7 +32,7 @@ NodeSqliteHeaven.prototype.typeof = SqliteHeaven.typeof
 
 // NOTE: Node.js SQLite returned rows are not inheriting from Object.prototype.
 NodeSqliteHeaven.prototype._create = function(attrs) {
-	// Note v22.5 launched with SQLite v3.46.
+	// Node v22.5 launched with SQLite v3.46.
 	return insertAllWithMaxVariables(
 		MAX_VARIABLE_NUMBER,
 		this.table,
