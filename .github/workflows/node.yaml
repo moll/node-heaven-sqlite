@@ -34,9 +34,8 @@ jobs:
             mapbox-sqlite3: "4"
             better-sqlite3: "6"
 
-          - node: "8"
-            better-sqlite3: "6"
-            flaky: true
+          # Mapbox SQLite3 v5 on Node v8 requires Python 2, which isn't
+          # available on GitHub Actions.
 
           # Better SQLite v6 on Node v9 requires Python 2, which isn't
           # available on GitHub Actions.
