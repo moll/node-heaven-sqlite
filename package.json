@@ -42,6 +42,11 @@
 		"better-sqlite3": ">= 6 < 13"
 	},
 
+	"peerDependenciesMeta": {
+		"sqlite3": {"optional": true},
+		"better-sqlite3": {"optional": true}
+	},
+
 	"devDependencies": {
 		"mocha": ">= 2 < 4",
 		"must": ">= 0.13.0 < 0.14",
