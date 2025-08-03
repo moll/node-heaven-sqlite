@@ -36,7 +36,7 @@ var Sqlite3 = require("sqlite3")
 var sqlite = new Sqlite3.Database(":memory:")
 sqlite.serialize()
 
-function Model(attrs) { Object.assign(this, attrs)}
+function Model(attrs) { Object.assign(this, attrs) }
 var modelsDb = new SqliteHeaven(Model, sqlite, "models")
 ```
 
@@ -73,7 +73,7 @@ var SqliteHeaven = require("heaven-sqlite/better")
 var Sqlite3 = require("better-sqlite3")
 var sqlite = new Sqlite3.Database(":memory:")
 
-function Model(attrs) { Object.assign(this, attrs)}
+function Model(attrs) { Object.assign(this, attrs) }
 var modelsDb = new SqliteHeaven(Model, sqlite, "models")
 ```
 
@@ -110,7 +110,7 @@ var SqliteHeaven = require("heaven-sqlite")
 var Sqlite = require("node:sqlite").DatabaseSync
 var sqlite = new Sqlite(":memory:")
 
-function Model(attrs) { Object.assign(this, attrs)}
+function Model(attrs) { Object.assign(this, attrs) }
 var modelsDb = new SqliteHeaven(Model, sqlite, "models")
 ```
 
