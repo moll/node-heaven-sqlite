@@ -1,4 +1,4 @@
-## Unreleased
+## 2.1.0 (Aug 3, 2025)
 - Refactors SQLite version detection for [Better SQLite3][better-sqlite3] to be per-SQLite connection, permitting parallel use of different versions.  
   This also permits using the Better SQLite3 Heaven adapter with different SQLite modules.
 
